@@ -1,0 +1,9 @@
+fastapi==0.136.3
+uvicorn[standard]
+python-dotenv==1.2.2
+python-jose[cryptography]==3.5.0
+bcrypt==5.0.0
+qrcode==8.2
+Pillow==12.2.0
+python-multipart==0.0.30
+pydantic==2.13.4
