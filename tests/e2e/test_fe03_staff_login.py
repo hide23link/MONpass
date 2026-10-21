@@ -41,3 +41,37 @@ class TestStaffLogin:
         page.click("a[href='#/login']")
         page.wait_for_timeout(500)
         assert "#/login" in page.url
+
+
+class TestStaffLoginPasswordToggle:
+    def test_FE_03_005_toggle_button_exists(self, page):
+        page.goto(f"{BASE_URL}/#/staff-login")
+        page.wait_for_selector("#password")
+        btn = page.locator("button[onclick*='togglePw']")
+        expect(btn).to_be_visible()
+
+    def test_FE_03_006_initial_type_is_password(self, page):
+        page.goto(f"{BASE_URL}/#/staff-login")
+        page.wait_for_selector("#password")
+        assert page.locator("#password").get_attribute("type") == "password"
+
+    def test_FE_03_007_click_shows_password(self, page):
+        page.goto(f"{BASE_URL}/#/staff-login")
+        page.wait_for_selector("#password")
+        page.locator("button[onclick*='togglePw']").click()
+        assert page.locator("#password").get_attribute("type") == "text"
+
+    def test_FE_03_008_click_again_hides_password(self, page):
+        page.goto(f"{BASE_URL}/#/staff-login")
+        page.wait_for_selector("#password")
+        btn = page.locator("button[onclick*='togglePw']")
+        btn.click()
+        btn.click()
+        assert page.locator("#password").get_attribute("type") == "password"
+
+    def test_FE_03_009_icon_changes_on_toggle(self, page):
+        page.goto(f"{BASE_URL}/#/staff-login")
+        page.wait_for_selector("#pw-eye")
+        assert page.locator("#pw-eye").inner_text() == "👁"
+        page.locator("button[onclick*='togglePw']").click()
+        assert page.locator("#pw-eye").inner_text() == "🙈"

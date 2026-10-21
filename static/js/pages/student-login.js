@@ -14,9 +14,15 @@ async function pageStudentLogin() {
           </div>
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
-            <input id="password" type="password" autocomplete="current-password"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-              placeholder="配布パスワードを入力">
+            <div class="relative">
+              <input id="password" type="password" autocomplete="current-password"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                placeholder="配布パスワードを入力">
+              <button type="button" onclick="togglePw('password','pw-eye')"
+                class="absolute inset-y-0 right-0 px-3 text-gray-400 hover:text-gray-600">
+                <span id="pw-eye">👁</span>
+              </button>
+            </div>
           </div>
           <div id="error-msg" class="hidden text-red-600 text-sm mb-4 p-3 bg-red-50 rounded-lg"></div>
           <button id="submit-btn" type="submit"

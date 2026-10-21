@@ -79,6 +79,14 @@ async function exportEmergencyCsv() {
 
 // ─── 汎用ヘルパー ────────────────────────────────────────────────────
 
+function togglePw(inputId, eyeId) {
+  const input = document.getElementById(inputId);
+  const eye   = document.getElementById(eyeId);
+  if (!input) return;
+  input.type = input.type === 'password' ? 'text' : 'password';
+  if (eye) eye.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
 function escHtml(s) {
   return String(s ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')

@@ -94,6 +94,40 @@ class TestStudentLoginNormal:
         page.wait_for_url(lambda u: "#/qr" in u, timeout=5000)
 
 
+class TestStudentLoginPasswordToggle:
+    def test_FE_02_04_001_toggle_button_exists(self, page):
+        page.goto(f"{BASE_URL}/#/login")
+        page.wait_for_selector("#password")
+        btn = page.locator("button[onclick*='togglePw']")
+        expect(btn).to_be_visible()
+
+    def test_FE_02_04_002_initial_type_is_password(self, page):
+        page.goto(f"{BASE_URL}/#/login")
+        page.wait_for_selector("#password")
+        assert page.locator("#password").get_attribute("type") == "password"
+
+    def test_FE_02_04_003_click_shows_password(self, page):
+        page.goto(f"{BASE_URL}/#/login")
+        page.wait_for_selector("#password")
+        page.locator("button[onclick*='togglePw']").click()
+        assert page.locator("#password").get_attribute("type") == "text"
+
+    def test_FE_02_04_004_click_again_hides_password(self, page):
+        page.goto(f"{BASE_URL}/#/login")
+        page.wait_for_selector("#password")
+        btn = page.locator("button[onclick*='togglePw']")
+        btn.click()
+        btn.click()
+        assert page.locator("#password").get_attribute("type") == "password"
+
+    def test_FE_02_04_005_icon_changes_on_toggle(self, page):
+        page.goto(f"{BASE_URL}/#/login")
+        page.wait_for_selector("#pw-eye")
+        assert page.locator("#pw-eye").inner_text() == "👁"
+        page.locator("button[onclick*='togglePw']").click()
+        assert page.locator("#pw-eye").inner_text() == "🙈"
+
+
 class TestStudentLoginAbnormal:
     def test_FE_02_03_001_empty_student_id_shows_error(self, page):
         page.goto(f"{BASE_URL}/#/login")
