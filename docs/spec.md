@@ -1,7 +1,7 @@
 # 学園祭入場システム 設計書
 
 作成日: 2026年6月3日  
-最終更新: 2026年6月4日
+最終更新: 2026年11月14日
 
 ---
 
@@ -520,117 +520,40 @@ static/
 
 ---
 
-## 11. インフラ構成
+## 11. インフラ構成（想定例）
 
 | 項目 | 内容 |
 |---|---|
-| メインサーバー | Proxmox VM1 / Ubuntu 24.04 LTS / IP: <サーバーIP> |
-| バックアップサーバー | Proxmox VM2（予定） |
-| DB同期 | cronで5分ごとSQLiteファイルコピー（予定） |
-| USBバックアップ | 当日朝8時に自動保存（予定） |
-| ドメイン | ${DOMAIN}（本番時設定） |
-| DNS | AWS Route 53（予定） |
-| HTTPS | Let's Encrypt（Certbot）（予定） |
+| メインサーバー | 仮想マシン（例: Proxmox VM）/ Ubuntu 24.04 LTS |
+| バックアップサーバー | 同構成のVMを待機系として用意 |
+| DB同期 | cronで5分ごとSQLiteファイルコピー |
+| USBバックアップ | 当日朝8時に自動保存 |
+| ドメイン | `DOMAIN` 環境変数で指定 |
+| HTTPS | Let's Encrypt（Certbot） |
 | リバースプロキシ | Nginx |
 | アプリサーバー | uvicorn（workers=2） |
 | サービス管理 | systemd（monpass.service） |
-| デプロイ | rsync / scp（devcontainerから） |
 
-### Nginx設定例（現在の構成）
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-    client_max_body_size 10M;
-
-    # JSファイルはキャッシュ無効（デプロイ後の即時反映のため）
-    location ~* \.js$ {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        expires 0;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
-※ HTTPS対応は本番ドメイン取得後にLet's Encryptで追加予定。
+Nginx・systemdの設定例は [README.md](../README.md#本番デプロイnginx--systemd) を参照。
 
 ---
 
-## 12. 起動方法
+## 12. 起動方法・環境変数
 
-```bash
-# 環境変数を設定して起動
-DB_PATH=./data/gakuensai.db \
-JWT_SECRET=<長くランダムな文字列> \
-ADMIN_ID=admin \
-ADMIN_PASSWORD=<管理者パスワード> \
-DOMAIN=localhost:8000 \
-ISSUE_START_DATE=2026-10-01 \
-ISSUE_END_DATE=2026-10-15 \
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
+起動手順は [README.md](../README.md#セットアップ) を参照。環境変数の一覧と既定値は [.env.example](../.env.example) にまとめている。
 
-### .env.example
-
-```env
-APP_HOST=0.0.0.0
-APP_PORT=8000
-DOMAIN=                     # 例: your-domain.example.com
-JWT_SECRET=                 # 必須: 長くランダムな文字列
-ADMIN_ID=admin
-ADMIN_PASSWORD=             # 必須: 初回起動前に設定
-DB_PATH=./data/gakuensai.db
-LOGIN_MAX_FAILURES=10
-LOGIN_LOCKOUT_MINUTES=30
-ISSUE_START_DATE=2026-xx-xx
-ISSUE_END_DATE=2026-xx-xx
-```
+| 変数 | 必須 | 既定値 | 説明 |
+|---|---|---|---|
+| `JWT_SECRET` | ✅ | なし | JWT署名シークレット（未設定だと起動時エラー） |
+| `ADMIN_PASSWORD` | ✅ | なし | 初期管理者パスワード（初回起動時に管理者を自動生成） |
+| `ADMIN_ID` | | `admin` | 初期管理者ID |
+| `DB_PATH` | | `./data/gakuensai.db` | SQLiteファイルのパス |
+| `DOMAIN` | | `localhost:8000` | QRコードに埋め込むドメイン |
+| `ISSUE_START_DATE` | | `2000-01-01` | QR発行開始日 |
+| `ISSUE_END_DATE` | | `2099-12-31` | QR発行終了日 |
+| `LOGIN_MAX_FAILURES` | | `10` | ロックまでの連続失敗回数 |
+| `LOGIN_LOCKOUT_MINUTES` | | `30` | ロック時間（分） |
 
 ---
 
-## 13. ディレクトリ構成
-
-```
-MONpass/
-├── main.py               FastAPIアプリ本体（create_app()ファクトリ）
-├── requirements-test.txt テスト依存ライブラリ
-├── pytest.ini
-├── 仕様書.md
-├── frontend_spec.md
-├── frontend_test_cases.md
-├── test-case.md
-├── data/                 ← .gitignoreで除外
-│   └── gakuensai.db
-├── static/
-│   ├── index.html
-│   ├── css/custom.css
-│   └── js/
-│       ├── api.js
-│       ├── auth.js
-│       ├── common.js
-│       ├── router.js
-│       └── pages/（10ファイル）
-└── tests/
-    ├── conftest.py
-    ├── test_tc01_auth.py 〜 test_tc13_load.py（バックエンドテスト）
-    └── e2e/
-        ├── conftest.py
-        ├── e2e_helpers.py
-        └── test_fe01_routing.py 〜 test_fe08_to_14.py（E2Eテスト）
-```
-
----
-
-*本ドキュメントは2026年6月3日時点の実装を反映しています。*
+*本ドキュメントは2026年6月時点の実装を反映しています。ディレクトリ構成は [README.md](../README.md#ディレクトリ構成) を参照。*

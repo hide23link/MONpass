@@ -2,11 +2,13 @@
 
 学園祭の入場をQRコードで管理するWebシステムです。
 
+> **このリポジトリはアーカイブ済みです。** 後継の Cloudflare Workers 版は [monpassC](https://github.com/hide23link/monpassC) で開発しています。本リポジトリは初期の Python（FastAPI + SQLite）実装として残しています。
+
 ## 機能概要
 
 | ロール | 機能 |
 |---|---|
-| 生徒 | QR発行（最大5枚）・発行済み一覧・QR保存 |
+| 生徒 | QR発行（最大5枚・固定）・発行済み一覧・QR保存 |
 | スタッフ | QRスキャン・入場記録・オフライン対応 |
 | 管理者 | ダッシュボード・チケット/生徒/スタッフ管理・CSV入出力 |
 
@@ -35,6 +37,8 @@ pip install -r requirements.txt
 cp .env.example .env
 # .env を編集して JWT_SECRET と ADMIN_PASSWORD を設定
 ```
+
+環境変数の一覧は [docs/spec.md の「12. 起動方法・環境変数」](docs/spec.md#12-起動方法環境変数) を参照。
 
 ### 3. 起動
 
@@ -120,6 +124,15 @@ CSVフォーマット（ヘッダー行あり）:
 
 サンプルデータ: `sample_students.csv`（20名分、架空データ）
 
+## ドキュメント
+
+| ファイル | 内容 |
+|---|---|
+| [docs/spec.md](docs/spec.md) | 設計書（要件・認証・DB設計・API・オフライン対応・冗長化/当日運用） |
+| [docs/frontend-spec.md](docs/frontend-spec.md) | フロントエンド仕様（画面ごとの詳細・IndexedDB・デザイン） |
+| [docs/test-cases-backend.md](docs/test-cases-backend.md) | バックエンドテストケース一覧（TC-01〜13） |
+| [docs/test-cases-frontend.md](docs/test-cases-frontend.md) | フロントエンド（E2E）テストケース一覧（FE-TC-01〜17） |
+
 ## ディレクトリ構成
 
 ```
@@ -129,9 +142,9 @@ MONpass/
 ├── requirements-test.txt    テスト依存ライブラリ
 ├── .env.example             環境変数サンプル
 ├── pytest.ini
-├── 仕様書.md
-├── frontend_spec.md
-├── sample_students.csv      テスト用サンプルデータ
+├── sample_students.csv      テスト用サンプルデータ（架空）
+├── LICENSE
+├── docs/                    仕様書・テストケース
 ├── static/
 │   ├── index.html
 │   ├── css/custom.css
@@ -149,4 +162,4 @@ MONpass/
 
 ## ライセンス
 
-MIT
+[MIT](LICENSE)

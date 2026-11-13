@@ -2,7 +2,7 @@
 
 作成日: 2026年6月3日  
 最終更新: 2026年6月3日  
-対象仕様書: frontend_spec.md  
+対象仕様書: [frontend-spec.md](frontend-spec.md)  
 テストフレームワーク: Playwright (Python)
 
 ---
@@ -326,4 +326,4 @@ pytest tests/e2e/test_fe04_qr.py --browser chromium -v
 
 ---
 
-*本テストケースは frontend_spec.md（2026年6月3日版）に基づいて作成。実装変更時は本ファイルも更新すること。*
+*本テストケースは frontend-spec.md（2026年6月3日版）に基づいて作成。実装変更時は本ファイルも更新すること。*
